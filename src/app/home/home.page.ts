@@ -1,17 +1,27 @@
-import { Component, inject } from '@angular/core';
-import { RefresherCustomEvent } from '@ionic/angular';
-import { MessageComponent } from '../message/message.component';
-
-import { DataService, Message } from '../services/data.service';
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { IonicModule, RefresherCustomEvent } from '@ionic/angular';
 
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
-  standalone: false,
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonicModule
+  ]
 })
 export class HomePage {
-  private data = inject(DataService);
+  newTask: string = '';
+  tasks: string[] = [];
+
+  isEditModalOpen = false;
+  editTaskIndex: number | null = null;
+  editTaskText: string = '';
+
   constructor() {}
 
   refresh(ev: any) {
@@ -20,7 +30,33 @@ export class HomePage {
     }, 3000);
   }
 
-  getMessages(): Message[] {
-    return this.data.getMessages();
+  addTask() {
+    if (this.newTask.trim().length > 0) {
+      this.tasks.push(this.newTask.trim());
+      this.newTask = '';
+    }
+  }
+
+  deleteTask(index: number) {
+    this.tasks.splice(index, 1);
+  }
+
+  openEditModal(index: number) {
+    this.editTaskIndex = index;
+    this.editTaskText = this.tasks[index];
+    this.isEditModalOpen = true;
+  }
+
+  saveEdit() {
+    if (this.editTaskIndex !== null && this.editTaskText.trim().length > 0) {
+      this.tasks[this.editTaskIndex] = this.editTaskText.trim();
+      this.closeEditModal();
+    }
+  }
+
+  closeEditModal() {
+    this.isEditModalOpen = false;
+    this.editTaskIndex = null;
+    this.editTaskText = '';
   }
 }
